@@ -86,12 +86,8 @@ export class EmployeeListView {
           </span>
         </td>
         <td class="actions">
-          <button class="btn btn-small btn-secondary" data-action="edit" data-id="${this.escapeHtml(employee.id)}">
-            Edit
-          </button>
-          <button class="btn btn-small btn-danger" data-action="delete" data-id="${this.escapeHtml(employee.id)}">
-            Delete
-          </button>
+          <i class="fa-regular fa-pen-to-square action-icon action-edit" data-action="edit" data-id="${this.escapeHtml(employee.id)}" title="Edit"></i>
+          <i class="fa-regular fa-trash-can action-icon action-delete" data-action="delete" data-id="${this.escapeHtml(employee.id)}" title="Delete"></i>
         </td>
       </tr>
     `).join('');
@@ -140,10 +136,10 @@ export class EmployeeListView {
       });
     }
 
-    // Edit and Delete buttons
-    const actionButtons = this.container.querySelectorAll('[data-action]');
-    actionButtons.forEach(btn => {
-      btn.addEventListener('click', async (e) => {
+    // Edit icons and Delete buttons
+    const actionElements = this.container.querySelectorAll('[data-action]');
+    actionElements.forEach(element => {
+      element.addEventListener('click', async (e) => {
         const target = e.currentTarget as HTMLElement;
         const action = target.getAttribute('data-action');
         const id = target.getAttribute('data-id');

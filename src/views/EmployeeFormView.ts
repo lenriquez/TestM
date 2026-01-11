@@ -51,14 +51,17 @@ export class EmployeeFormView {
    */
   private getTemplate(): string {
     const { isEditMode, state, formData, errors } = this.viewModel;
-    const title = isEditMode ? 'Edit Employee' : 'New Employee';
+    const breadcrumbLabel = isEditMode ? 'Edit Employee' : 'New Employee';
+    const employeeName = `${formData.firstName} ${formData.lastName}`.trim() || '';
     const submitLabel = state === 'loading' ? 'Saving...' : (isEditMode ? 'Update Employee' : 'Create Employee');
 
     return `
       <div class="employee-form-container">
         <div class="header">
-          <h1>${this.escapeHtml(title)}</h1>
-          <button class="btn btn-secondary" id="cancel-btn">Cancel</button>
+          <h1 class="breadcrumb-title">
+            <span class="breadcrumb-item">${this.escapeHtml(breadcrumbLabel)}</span>
+            ${employeeName ? `<span class="breadcrumb-separator">></span><span class="breadcrumb-current">${this.escapeHtml(employeeName)}</span>` : ''}
+          </h1>
         </div>
         
         ${errors.general ? `
@@ -68,8 +71,36 @@ export class EmployeeFormView {
         ` : ''}
 
         <form id="employee-form" class="employee-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="firstName">First Name <span class="required">*</span></label>
+              <input 
+                type="text" 
+                id="firstName" 
+                name="firstName" 
+                value="${this.escapeHtml(formData.firstName)}"
+                class="form-input ${errors.firstName ? 'error' : ''}"
+                required
+              />
+              ${errors.firstName ? `<span class="error-text">${this.escapeHtml(errors.firstName)}</span>` : ''}
+            </div>
+
+            <div class="form-group">
+              <label for="lastName">Last Name <span class="required">*</span></label>
+              <input 
+                type="text" 
+                id="lastName" 
+                name="lastName" 
+                value="${this.escapeHtml(formData.lastName)}"
+                class="form-input ${errors.lastName ? 'error' : ''}"
+                required
+              />
+              ${errors.lastName ? `<span class="error-text">${this.escapeHtml(errors.lastName)}</span>` : ''}
+            </div>
+          </div>
+
           <div class="form-group">
-            <label for="employeeNo">Employee Number <span class="required">*</span></label>
+            <label for="employeeNo">ID <span class="required">*</span></label>
             <input 
               type="text" 
               id="employeeNo" 
@@ -81,32 +112,6 @@ export class EmployeeFormView {
               required
             />
             ${errors.employeeNo ? `<span class="error-text">${this.escapeHtml(errors.employeeNo)}</span>` : ''}
-          </div>
-
-          <div class="form-group">
-            <label for="firstName">First Name <span class="required">*</span></label>
-            <input 
-              type="text" 
-              id="firstName" 
-              name="firstName" 
-              value="${this.escapeHtml(formData.firstName)}"
-              class="form-input ${errors.firstName ? 'error' : ''}"
-              required
-            />
-            ${errors.firstName ? `<span class="error-text">${this.escapeHtml(errors.firstName)}</span>` : ''}
-          </div>
-
-          <div class="form-group">
-            <label for="lastName">Last Name <span class="required">*</span></label>
-            <input 
-              type="text" 
-              id="lastName" 
-              name="lastName" 
-              value="${this.escapeHtml(formData.lastName)}"
-              class="form-input ${errors.lastName ? 'error' : ''}"
-              required
-            />
-            ${errors.lastName ? `<span class="error-text">${this.escapeHtml(errors.lastName)}</span>` : ''}
           </div>
 
           <div class="form-group">
@@ -126,13 +131,15 @@ export class EmployeeFormView {
 
           <div class="form-group">
             <label class="checkbox-label">
+              <span>Active</span>
               <input 
+                class="checkbox-hide"
                 type="checkbox" 
                 id="active" 
                 name="active"
                 ${formData.active ? 'checked' : ''}
               />
-              <span>Active</span>
+              <span class="checkmark"></span>
             </label>
           </div>
 
