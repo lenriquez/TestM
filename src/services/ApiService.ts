@@ -50,28 +50,44 @@ export class ApiService {
       let errorData = null;
 
       try {
-        errorData = await response.json();
+        // Clone response to avoid "body already read" error
+        const clonedResponse = response.clone();
+        errorData = await clonedResponse.json();
         if (errorData.message || errorData.error) {
           errorMessage = errorData.message || errorData.error || errorMessage;
         }
       } catch {
-        // If response is not JSON, use status text
-        const text = await response.text();
-        if (text) {
-          errorMessage = text;
+        // If response is not JSON, try to read as text
+        try {
+          const clonedResponse = response.clone();
+          const text = await clonedResponse.text();
+          if (text) {
+            errorMessage = text;
+          }
+        } catch {
+          // If we can't read the body, just use status text
         }
       }
 
       throw new ApiError(errorMessage, response.status, errorData);
     }
 
-    // Handle empty responses (e.g., DELETE)
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
+    // For successful responses, check if there's actually content
+    // Read as text first to check if body is empty
+    const text = await response.text();
+
+    // If body is empty, return empty object
+    if (!text || text.trim() === '') {
       return {} as T;
     }
 
-    return response.json();
+    // Try to parse as JSON
+    try {
+      return JSON.parse(text) as T;
+    } catch {
+      // If parsing fails, return empty object
+      return {} as T;
+    }
   }
 
   /**
@@ -83,6 +99,11 @@ export class ApiService {
         method: 'GET',
         headers: this.getHeaders(),
       });
+
+      // Handle 404 (no employees) by returning empty array
+      if (response.status === 404) {
+        return [];
+      }
 
       const data = await this.handleResponse<EmployeeApiResponse[]>(response);
 

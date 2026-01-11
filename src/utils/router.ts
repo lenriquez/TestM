@@ -83,8 +83,9 @@ export class Router {
    * Returns params object if match, null otherwise
    */
   private matchRoute(pattern: string, path: string): Record<string, string> | null {
-    const patternParts = pattern.split('/');
-    const pathParts = path.split('/');
+    // Filter out empty strings from split (removes leading/trailing empty parts)
+    const patternParts = pattern.split('/').filter(part => part !== '');
+    const pathParts = path.split('/').filter(part => part !== '');
 
     if (patternParts.length !== pathParts.length) {
       return null;

@@ -16,10 +16,34 @@ export class EmployeeFormView {
    * Render the view
    */
   render(): void {
+    // Store the currently focused element before re-rendering
+    const activeElement = document.activeElement;
+    const activeElementId = activeElement instanceof HTMLElement ? activeElement.id : null;
+    const activeElementSelectionStart = activeElement instanceof HTMLInputElement
+      ? activeElement.selectionStart
+      : null;
+    const activeElementSelectionEnd = activeElement instanceof HTMLInputElement
+      ? activeElement.selectionEnd
+      : null;
+
     this.container.innerHTML = this.getTemplate();
     this.attachEventListeners();
     this.subscribeToViewModel();
     this.updateFormFields();
+
+    // Restore focus and cursor position if an input was focused
+    if (activeElementId) {
+      const restoredElement = this.container.querySelector(`#${activeElementId}`) as HTMLInputElement;
+      if (restoredElement) {
+        restoredElement.focus();
+        // Restore cursor position for text inputs
+        if (restoredElement instanceof HTMLInputElement &&
+          activeElementSelectionStart !== null &&
+          activeElementSelectionEnd !== null) {
+          restoredElement.setSelectionRange(activeElementSelectionStart, activeElementSelectionEnd);
+        }
+      }
+    }
   }
 
   /**
