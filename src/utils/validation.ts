@@ -84,6 +84,31 @@ export function validateRequired(value: string, fieldName: string): ValidationRe
 }
 
 /**
+ * Validate employee number
+ */
+export function validateEmployeeNo(employeeNo: string): ValidationResult {
+  if (!employeeNo || employeeNo.trim() === '') {
+    return { isValid: false, error: 'Employee number is required' };
+  }
+
+  if (employeeNo.trim().length < 1) {
+    return { isValid: false, error: 'Employee number cannot be empty' };
+  }
+
+  if (employeeNo.trim().length > 20) {
+    return { isValid: false, error: 'Employee number must be less than 20 characters' };
+  }
+
+  // Allow alphanumeric characters, hyphens, and underscores
+  const employeeNoPattern = /^[a-zA-Z0-9_-]+$/;
+  if (!employeeNoPattern.test(employeeNo.trim())) {
+    return { isValid: false, error: 'Employee number can only contain letters, numbers, hyphens, and underscores' };
+  }
+
+  return { isValid: true };
+}
+
+/**
  * Format SSN input (auto-format as user types)
  */
 export function formatSSN(value: string): string {

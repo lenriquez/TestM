@@ -21,6 +21,7 @@ export interface Employee {
   ssn: string;
   firstName: string;
   lastName: string;
+  employeeNo?: string; // Employee number
   active: boolean; // Derived from Status (0 = active)
 }
 
@@ -33,6 +34,7 @@ export function fromApiResponse(apiEmployee: EmployeeApiResponse): Employee {
     ssn: apiEmployee.SSN,
     firstName: apiEmployee.FirstName,
     lastName: apiEmployee.LastName,
+    employeeNo: apiEmployee.EmployeeNo,
     active: apiEmployee.Status === 0,
   };
 }
@@ -63,9 +65,23 @@ export function toApiRequest(employee: Partial<Employee>, existingId?: string): 
     request.Status = employee.active ? 0 : 1;
   }
 
-  if (employee.employmentStartDate !== undefined) {
+  // Add EmployeeNo - required by API
+  if (employee.employeeNo !== undefined && employee.employeeNo.trim() !== '') {
+    request.EmployeeNo = employee.employeeNo.trim();
+  } else {
+    // Generate a default employee number if not provided
+    const timestamp = Date.now().toString().slice(-8);
+    request.EmployeeNo = timestamp.padStart(4, '0');
+  }
+
+  // Add EmploymentStartDate - required by API
+  if (!request.EmploymentStartDate) {
     request.EmploymentStartDate = new Date().toISOString();
   }
+
+  // Add LastUpdatedBy and LastUpdatedDate for tracking
+  request.LastUpdatedBy = 'admin';
+  request.LastUpdatedDate = new Date().toISOString();
 
   return request;
 }

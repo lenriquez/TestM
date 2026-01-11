@@ -1,6 +1,6 @@
 import { Employee } from '../models/Employee';
 import { apiService, ApiError } from '../services/ApiService';
-import { validateSSN, validateFirstName, validateLastName, ValidationResult } from '../utils/validation';
+import { validateSSN, validateFirstName, validateLastName, validateEmployeeNo } from '../utils/validation';
 
 export type EmployeeFormState = 'idle' | 'loading' | 'success' | 'error';
 
@@ -8,6 +8,7 @@ export interface EmployeeFormData {
   firstName: string;
   lastName: string;
   ssn: string;
+  employeeNo: string;
   active: boolean;
 }
 
@@ -15,6 +16,7 @@ export interface EmployeeFormErrors {
   firstName?: string;
   lastName?: string;
   ssn?: string;
+  employeeNo?: string;
   general?: string;
 }
 
@@ -23,6 +25,7 @@ export class EmployeeFormViewModel {
     firstName: '',
     lastName: '',
     ssn: '',
+    employeeNo: '',
     active: true,
   };
   private _errors: EmployeeFormErrors = {};
@@ -89,6 +92,7 @@ export class EmployeeFormViewModel {
       firstName: '',
       lastName: '',
       ssn: '',
+      employeeNo: '',
       active: true,
     };
     this._errors = {};
@@ -112,6 +116,7 @@ export class EmployeeFormViewModel {
         firstName: employee.firstName,
         lastName: employee.lastName,
         ssn: employee.ssn,
+        employeeNo: employee.employeeNo || '',
         active: employee.active,
       };
       this._state = 'idle';
@@ -161,6 +166,11 @@ export class EmployeeFormViewModel {
       this._errors.ssn = ssnResult.error;
     }
 
+    const employeeNoResult = validateEmployeeNo(this._formData.employeeNo);
+    if (!employeeNoResult.isValid) {
+      this._errors.employeeNo = employeeNoResult.error;
+    }
+
     this.notify();
     return Object.keys(this._errors).length === 0;
   }
@@ -182,6 +192,7 @@ export class EmployeeFormViewModel {
         firstName: this._formData.firstName.trim(),
         lastName: this._formData.lastName.trim(),
         ssn: this._formData.ssn.trim(),
+        employeeNo: this._formData.employeeNo.trim(),
         active: this._formData.active,
       };
 

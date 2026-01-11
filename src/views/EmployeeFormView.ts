@@ -45,6 +45,21 @@ export class EmployeeFormView {
 
         <form id="employee-form" class="employee-form">
           <div class="form-group">
+            <label for="employeeNo">Employee Number <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="employeeNo" 
+              name="employeeNo" 
+              value="${this.escapeHtml(formData.employeeNo)}"
+              class="form-input ${errors.employeeNo ? 'error' : ''}"
+              placeholder="e.g., 0001"
+              maxlength="20"
+              required
+            />
+            ${errors.employeeNo ? `<span class="error-text">${this.escapeHtml(errors.employeeNo)}</span>` : ''}
+          </div>
+
+          <div class="form-group">
             <label for="firstName">First Name <span class="required">*</span></label>
             <input 
               type="text" 
@@ -116,11 +131,13 @@ export class EmployeeFormView {
   private updateFormFields(): void {
     const { formData } = this.viewModel;
 
+    const employeeNoInput = this.container.querySelector('#employeeNo') as HTMLInputElement;
     const firstNameInput = this.container.querySelector('#firstName') as HTMLInputElement;
     const lastNameInput = this.container.querySelector('#lastName') as HTMLInputElement;
     const ssnInput = this.container.querySelector('#ssn') as HTMLInputElement;
     const activeInput = this.container.querySelector('#active') as HTMLInputElement;
 
+    if (employeeNoInput) employeeNoInput.value = formData.employeeNo;
     if (firstNameInput) firstNameInput.value = formData.firstName;
     if (lastNameInput) lastNameInput.value = formData.lastName;
     if (ssnInput) ssnInput.value = formData.ssn;
@@ -153,10 +170,18 @@ export class EmployeeFormView {
     }
 
     // Real-time field updates
+    const employeeNoInput = this.container.querySelector('#employeeNo') as HTMLInputElement;
     const firstNameInput = this.container.querySelector('#firstName') as HTMLInputElement;
     const lastNameInput = this.container.querySelector('#lastName') as HTMLInputElement;
     const ssnInput = this.container.querySelector('#ssn') as HTMLInputElement;
     const activeInput = this.container.querySelector('#active') as HTMLInputElement;
+
+    if (employeeNoInput) {
+      employeeNoInput.addEventListener('input', (e) => {
+        const target = e.target as HTMLInputElement;
+        this.viewModel.updateField('employeeNo', target.value);
+      });
+    }
 
     if (firstNameInput) {
       firstNameInput.addEventListener('input', (e) => {
