@@ -139,7 +139,7 @@ Navigate to the home page (`/`) to see the list of all employees. The list displ
 
 ### Adding an Employee
 
-1. Click the "Add New Employee" button
+1. Click the "New Employee" button
 2. Fill in the required fields:
    - First Name
    - Last Name

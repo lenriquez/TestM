@@ -21,6 +21,19 @@ export class EmployeeListView {
   }
 
   /**
+   * Get header HTML template
+   */
+  private getHeaderTemplate(disableButton: boolean = false): string {
+    const disabledAttr = disableButton ? ' disabled' : '';
+    return `
+      <div class="header">
+        <h1>Employees</h1>
+        <button class="btn btn-primary" id="add-employee-btn"${disabledAttr}>New Employee</button>
+      </div>
+    `;
+  }
+
+  /**
    * Get HTML template
    */
   private getTemplate(): string {
@@ -29,10 +42,7 @@ export class EmployeeListView {
     if (state === 'loading') {
       return `
         <div class="employee-list-container">
-          <div class="header">
-            <h1>Employees</h1>
-            <button class="btn btn-primary" id="add-employee-btn" disabled>Add New Employee</button>
-          </div>
+          ${this.getHeaderTemplate(true)}
           <div class="loading-container">
             <div class="spinner"></div>
             <p>Loading employees...</p>
@@ -44,10 +54,7 @@ export class EmployeeListView {
     if (state === 'error') {
       return `
         <div class="employee-list-container">
-          <div class="header">
-            <h1>Employees</h1>
-            <button class="btn btn-primary" id="add-employee-btn">Add New Employee</button>
-          </div>
+          ${this.getHeaderTemplate()}
           <div class="error-container">
             <p class="error-message">${error || 'An error occurred'}</p>
             <button class="btn btn-secondary" id="retry-btn">Retry</button>
@@ -59,12 +66,9 @@ export class EmployeeListView {
     if (employees.length === 0) {
       return `
         <div class="employee-list-container">
-          <div class="header">
-            <h1>Employees</h1>
-            <button class="btn btn-primary" id="add-employee-btn">Add New Employee</button>
-          </div>
+          ${this.getHeaderTemplate()}
           <div class="empty-state">
-            <p>No employees found. Click "Add New Employee" to get started.</p>
+            <p>No employees found. Click "New Employee" to get started.</p>
           </div>
         </div>
       `;
@@ -94,10 +98,7 @@ export class EmployeeListView {
 
     return `
       <div class="employee-list-container">
-        <div class="header">
-          <h1>Employees</h1>
-          <button class="btn btn-primary" id="add-employee-btn">Add New Employee</button>
-        </div>
+        ${this.getHeaderTemplate()}
         <div class="table-container">
           <table class="employee-table">
             <thead>
@@ -123,7 +124,7 @@ export class EmployeeListView {
    * Attach event listeners
    */
   private attachEventListeners(): void {
-    // Add new employee button
+    // New employee button
     const addBtn = this.container.querySelector('#add-employee-btn');
     if (addBtn) {
       addBtn.addEventListener('click', () => {

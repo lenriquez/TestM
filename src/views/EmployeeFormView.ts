@@ -51,7 +51,7 @@ export class EmployeeFormView {
    */
   private getTemplate(): string {
     const { isEditMode, state, formData, errors } = this.viewModel;
-    const title = isEditMode ? 'Edit Employee' : 'Add New Employee';
+    const title = isEditMode ? 'Edit Employee' : 'New Employee';
     const submitLabel = state === 'loading' ? 'Saving...' : (isEditMode ? 'Update Employee' : 'Create Employee');
 
     return `
