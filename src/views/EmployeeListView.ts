@@ -1,0 +1,194 @@
+import { EmployeeListViewModel } from '../viewmodels/EmployeeListViewModel';
+import { router } from '../utils/router';
+
+export class EmployeeListView {
+  private viewModel: EmployeeListViewModel;
+  private container: HTMLElement;
+  private unsubscribe?: () => void;
+
+  constructor(viewModel: EmployeeListViewModel, container: HTMLElement) {
+    this.viewModel = viewModel;
+    this.container = container;
+  }
+
+  /**
+   * Render the view
+   */
+  render(): void {
+    this.container.innerHTML = this.getTemplate();
+    this.attachEventListeners();
+    this.subscribeToViewModel();
+  }
+
+  /**
+   * Get HTML template
+   */
+  private getTemplate(): string {
+    const { employees, state, error } = this.viewModel;
+
+    if (state === 'loading') {
+      return `
+        <div class="employee-list-container">
+          <div class="header">
+            <h1>Employees</h1>
+            <button class="btn btn-primary" id="add-employee-btn" disabled>Add New Employee</button>
+          </div>
+          <div class="loading-container">
+            <div class="spinner"></div>
+            <p>Loading employees...</p>
+          </div>
+        </div>
+      `;
+    }
+
+    if (state === 'error') {
+      return `
+        <div class="employee-list-container">
+          <div class="header">
+            <h1>Employees</h1>
+            <button class="btn btn-primary" id="add-employee-btn">Add New Employee</button>
+          </div>
+          <div class="error-container">
+            <p class="error-message">${error || 'An error occurred'}</p>
+            <button class="btn btn-secondary" id="retry-btn">Retry</button>
+          </div>
+        </div>
+      `;
+    }
+
+    if (employees.length === 0) {
+      return `
+        <div class="employee-list-container">
+          <div class="header">
+            <h1>Employees</h1>
+            <button class="btn btn-primary" id="add-employee-btn">Add New Employee</button>
+          </div>
+          <div class="empty-state">
+            <p>No employees found. Click "Add New Employee" to get started.</p>
+          </div>
+        </div>
+      `;
+    }
+
+    const tableRows = employees.map(employee => `
+      <tr>
+        <td>${this.escapeHtml(employee.id)}</td>
+        <td>${this.escapeHtml(employee.ssn)}</td>
+        <td>${this.escapeHtml(employee.firstName)}</td>
+        <td>${this.escapeHtml(employee.lastName)}</td>
+        <td>
+          <span class="status-badge ${employee.active ? 'active' : 'inactive'}">
+            ${employee.active ? 'Active' : 'Inactive'}
+          </span>
+        </td>
+        <td class="actions">
+          <button class="btn btn-small btn-secondary" data-action="edit" data-id="${this.escapeHtml(employee.id)}">
+            Edit
+          </button>
+          <button class="btn btn-small btn-danger" data-action="delete" data-id="${this.escapeHtml(employee.id)}">
+            Delete
+          </button>
+        </td>
+      </tr>
+    `).join('');
+
+    return `
+      <div class="employee-list-container">
+        <div class="header">
+          <h1>Employees</h1>
+          <button class="btn btn-primary" id="add-employee-btn">Add New Employee</button>
+        </div>
+        <div class="table-container">
+          <table class="employee-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>SSN</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Attach event listeners
+   */
+  private attachEventListeners(): void {
+    // Add new employee button
+    const addBtn = this.container.querySelector('#add-employee-btn');
+    if (addBtn) {
+      addBtn.addEventListener('click', () => {
+        router.navigate('/add');
+      });
+    }
+
+    // Retry button
+    const retryBtn = this.container.querySelector('#retry-btn');
+    if (retryBtn) {
+      retryBtn.addEventListener('click', () => {
+        this.viewModel.loadEmployees();
+      });
+    }
+
+    // Edit and Delete buttons
+    const actionButtons = this.container.querySelectorAll('[data-action]');
+    actionButtons.forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const target = e.currentTarget as HTMLElement;
+        const action = target.getAttribute('data-action');
+        const id = target.getAttribute('data-id');
+
+        if (!id) return;
+
+        if (action === 'edit') {
+          router.navigate(`/edit/${id}`);
+        } else if (action === 'delete') {
+          if (confirm('Are you sure you want to delete this employee?')) {
+            await this.viewModel.deleteEmployee(id);
+            // View will update automatically via subscription
+          }
+        }
+      });
+    });
+  }
+
+  /**
+   * Subscribe to view model changes
+   */
+  private subscribeToViewModel(): void {
+    if (this.unsubscribe) {
+      this.unsubscribe();
+    }
+
+    this.unsubscribe = this.viewModel.subscribe(() => {
+      this.render();
+    });
+  }
+
+  /**
+   * Cleanup
+   */
+  destroy(): void {
+    if (this.unsubscribe) {
+      this.unsubscribe();
+    }
+  }
+
+  /**
+   * Escape HTML to prevent XSS
+   */
+  private escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+}
