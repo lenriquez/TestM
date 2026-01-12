@@ -12,15 +12,25 @@ export interface Route {
 export class Router {
   private routes: Map<string, RouteHandler> = new Map();
   private currentRoute: string = '';
+  private initialized: boolean = false;
 
   constructor() {
     // Listen for hash changes
     window.addEventListener('hashchange', () => {
       this.handleRoute();
     });
+  }
 
-    // Handle initial route
-    this.handleRoute();
+  /**
+   * Initialize the router and handle initial route
+   * Should be called after all routes are registered
+   */
+  init(): void {
+    if (!this.initialized) {
+      this.initialized = true;
+      // Handle initial route after routes are registered
+      this.handleRoute();
+    }
   }
 
   /**

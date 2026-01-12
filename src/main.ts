@@ -14,6 +14,8 @@ const appContainer = document.getElementById('app');
 if (!appContainer) {
   throw new Error('App container not found');
 }
+// TypeScript now knows appContainer is not null after the check
+const appContainerElement = appContainer as HTMLElement;
 
 // Initialize views
 let currentView: EmployeeListView | EmployeeFormView | null = null;
@@ -33,7 +35,7 @@ function cleanupView(): void {
  */
 function showEmployeeList(): void {
   cleanupView();
-  const view = new EmployeeListView(employeeListViewModel, appContainer);
+  const view = new EmployeeListView(employeeListViewModel, appContainerElement);
   view.render();
   currentView = view;
   employeeListViewModel.loadEmployees();
@@ -45,7 +47,7 @@ function showEmployeeList(): void {
 function showAddEmployeeForm(): void {
   cleanupView();
   employeeFormViewModel.initializeForAdd();
-  const view = new EmployeeFormView(employeeFormViewModel, appContainer);
+  const view = new EmployeeFormView(employeeFormViewModel, appContainerElement);
   view.render();
   currentView = view;
 }
@@ -60,7 +62,7 @@ function showEditEmployeeForm(params?: Record<string, string>): void {
   }
 
   cleanupView();
-  const view = new EmployeeFormView(employeeFormViewModel, appContainer);
+  const view = new EmployeeFormView(employeeFormViewModel, appContainerElement);
   view.render();
   currentView = view;
   employeeFormViewModel.initializeForEdit(params.id);
@@ -93,6 +95,8 @@ function initializeRouter(): void {
   router.on('/', showEmployeeList);
   router.on('/add', showAddEmployeeForm);
   router.on('/edit/:id', showEditEmployeeForm);
+  // Initialize router after routes are registered
+  router.init();
 }
 
 // Initialize application
