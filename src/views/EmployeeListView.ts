@@ -1,5 +1,6 @@
 import { EmployeeListViewModel } from '../viewmodels/EmployeeListViewModel';
 import { router } from '../utils/router';
+import { ModalService } from '../utils/ModalService';
 
 export class EmployeeListView {
   private viewModel: EmployeeListViewModel;
@@ -87,7 +88,7 @@ export class EmployeeListView {
         </td>
         <td class="actions">
           <i class="fa-regular fa-pen-to-square action-icon action-edit" data-action="edit" data-id="${this.escapeHtml(employee.id)}" title="Edit"></i>
-          <i class="fa-regular fa-trash-can action-icon action-delete" data-action="delete" data-id="${this.escapeHtml(employee.id)}" title="Delete"></i>
+          <i class="fa-regular fa-trash-can action-icon action-delete" data-action="delete" data-id="${this.escapeHtml(employee.id)}" data-employee-name="${this.escapeHtml(employee.firstName + ' ' + employee.lastName)}" title="Delete"></i>
         </td>
       </tr>
     `).join('');
@@ -136,7 +137,7 @@ export class EmployeeListView {
       });
     }
 
-    // Edit icons and Delete buttons
+    // Edit icons and Delete icons
     const actionElements = this.container.querySelectorAll('[data-action]');
     actionElements.forEach(element => {
       element.addEventListener('click', async (e) => {
@@ -149,10 +150,16 @@ export class EmployeeListView {
         if (action === 'edit') {
           router.navigate(`/edit/${id}`);
         } else if (action === 'delete') {
-          if (confirm('Are you sure you want to delete this employee?')) {
+          // Get employee name for display
+          const employeeName = target.getAttribute('data-employee-name') || 'this employee';
+
+          // Show delete confirmation modal
+          ModalService.showDeleteConfirmation(employeeName, async () => {
             await this.viewModel.deleteEmployee(id);
             // View will update automatically via subscription
-          }
+          }).catch(() => {
+            // User cancelled - do nothing
+          });
         }
       });
     });
