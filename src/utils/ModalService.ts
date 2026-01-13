@@ -28,17 +28,18 @@ export class ModalService {
       const modalHTML = `
         <div class="modal fade" id="${modalId}" tabindex="-1" aria-labelledby="${modalId}Label" aria-hidden="true">
           <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h1 class="modal-title fs-5" id="${modalId}Label">${this.escapeHtml(options.title)}</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                <p>${options.message}</p>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">${this.escapeHtml(options.cancelText || 'Cancel')}</button>
-                <button type="button" class="btn ${options.confirmButtonClass || 'btn-primary'}" id="${modalId}ConfirmBtn">${this.escapeHtml(options.confirmText || 'Confirm')}</button>
+            <div class="modal-content custom-modal">
+              <div class="modal-body custom-modal-body">
+                <div class="custom-modal-content">
+                  <i class="fa-solid fa-triangle-exclamation fa-2xl my-fa-2xl"></i>
+                  <div class="custom-modal-text">
+                    <p class="custom-modal-message">${options.message}</p>
+                  </div>
+                </div>
+                <div class="custom-modal-footer">
+                  <button type="button" class="btn-cancel-link" data-bs-dismiss="modal">${this.escapeHtml(options.cancelText || 'Cancel')}</button>
+                  <button type="button" class="btn-confirm-danger" id="${modalId}ConfirmBtn">${this.escapeHtml(options.confirmText || 'Confirm')}</button>
+                </div>
               </div>
             </div>
           </div>
@@ -114,12 +115,12 @@ export class ModalService {
   /**
    * Show a delete confirmation modal
    */
-  static showDeleteConfirmation(itemName: string, onConfirm: () => void | Promise<void>): Promise<void> {
+  static showDeleteConfirmation(_itemName: string, onConfirm: () => void | Promise<void>): Promise<void> {
     return this.showConfirmation({
       title: 'Delete Employee',
-      message: `Are you sure you want to delete <strong>${this.escapeHtml(itemName)}</strong>? This action cannot be undone.`,
-      confirmText: 'Delete',
-      cancelText: 'Cancel',
+      message: `Are you sure you want to remove this employee?`,
+      confirmText: 'YES, REMOVE',
+      cancelText: 'CANCEL',
       confirmButtonClass: 'btn-danger',
       onConfirm,
     });
